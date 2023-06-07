@@ -53,7 +53,8 @@ def save_products(db_products, products):
         item_info = item.find('p', {'class': 'list_info'}).find('a')
         item_id = item_info['href'].split('/')[-2]
 
-        item_from_DB = db_products.find_one({"item_id": item_id})
+        filter = {"item_id": item_id}
+        item_from_DB = db_products.find_one(filter)
 
         if item_from_DB:
             update_at = item_from_DB['price_history'][-1]['date']
@@ -64,8 +65,10 @@ def save_products(db_products, products):
 
             original_price = item_from_DB['original_price']
             price_record = get_price_record(item, original_price)
-            db_products.update_one({"item_id": item_id}, {
-                "$push": {"price_history": price_record}})
+
+            filter = {"item_id": item_id}
+            update = {"$push": {"price_history": price_record}}
+            db_products.update_one(filter, update)
         else:
             product_info = get_product_info(item)
             db_products.insert_one(product_info)
