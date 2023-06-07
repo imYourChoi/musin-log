@@ -34,42 +34,42 @@ def connect_db():
     client = MongoClient(os.getenv("mongodb_uri"))
     db = client['musinsa']
 
-    if not "items" in db.list_collection_names():
-        db.create_collection("items")
-    db_items = db["items"]
+    if not "products" in db.list_collection_names():
+        db.create_collection("products")
+    db_products = db["products"]
 
-    return db_items
+    return db_products
 
 
-def get_items(browser):
+def get_products(browser):
     soup = BeautifulSoup(browser.page_source, 'html.parser')
-    items = soup.find_all('tr', 'cart_list_no')
+    products = soup.find_all('tr', 'cart_list_no')
 
-    return items
+    return products
 
 
-def save_items(db_items, items):
-    for item in items:
+def save_products(db_products, products):
+    for item in products:
         item_info = item.find('p', {'class': 'list_info'}).find('a')
         item_id = item_info['href'].split('/')[-2]
 
-        item_from_DB = db_items.find_one({"item_id": item_id})
+        item_from_DB = db_products.find_one({"item_id": item_id})
+
         if item_from_DB:
             original_price = item_from_DB['original_price']
-            price_element = extract_price_element(item, original_price)
-            db_items.update_one({"item_id": item_id}, {
-                                "$push": {"price_history": price_element}})
+            price_record = get_price_record(item, original_price)
+            db_products.update_one({"item_id": item_id}, {
+                "$push": {"price_history": price_record}})
         else:
-            product_info = extract_product_info(item)
-            # print(type(product_info))
-            db_items.insert_one(product_info)
+            product_info = get_product_info(item)
+            db_products.insert_one(product_info)
 
 
-def extract_price_element(item, original_price=1000000):
+def get_price_record(item, original_price):
     td_price = item.find('td', {'class': 'td_price'}).find('div')
     current_price = int(list(td_price.children)[-1].strip().replace(',', ''))
 
-    price_element = {
+    price_record = {
         "date": time.strftime('%Y-%m-%d', time.localtime(time.time())),
         "current_price": current_price,
         "discount_rate": int((original_price - current_price) / original_price * 100),
@@ -77,10 +77,10 @@ def extract_price_element(item, original_price=1000000):
         "discount": True if original_price == current_price else False
     }
 
-    return price_element
+    return price_record
 
 
-def extract_product_info(item):
+def get_product_info(item):
     # 상품 정보
     item_info = item.find('p', {'class': 'list_info'}).find('a')
 
@@ -105,7 +105,7 @@ def extract_product_info(item):
         original_price = int(td_price.text.strip().replace(',', ''))
 
     # 상품 현재 가격
-    price_element = extract_price_element(item, int(original_price))
+    price_record = get_price_record(item, int(original_price))
 
     product_info = {
         "item_id": item_id,
@@ -113,7 +113,7 @@ def extract_product_info(item):
         "brand": brand,
         "img_url": img,
         "original_price": original_price,
-        "price_history": [price_element]
+        "price_history": [price_record]
     }
 
     return product_info
@@ -124,13 +124,13 @@ def crawling():
 
     login(browser)
     move_to_cart(browser)
-    db_items = connect_db()
-    items = get_items(browser)
+    db_products = connect_db()
+    products = get_products(browser)
 
-    if not items:
+    if not products:
         return
 
-    save_items(db_items, items)
+    save_products(db_products, products)
 
     time.sleep(2)
 
