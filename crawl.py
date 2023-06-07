@@ -56,6 +56,12 @@ def save_products(db_products, products):
         item_from_DB = db_products.find_one({"item_id": item_id})
 
         if item_from_DB:
+            update_at = item_from_DB['price_history'][-1]['date']
+            current_date = time.strftime(
+                '%Y-%m-%d', time.localtime(time.time()))
+            if update_at == current_date:
+                return
+
             original_price = item_from_DB['original_price']
             price_record = get_price_record(item, original_price)
             db_products.update_one({"item_id": item_id}, {
