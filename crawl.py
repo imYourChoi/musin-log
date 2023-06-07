@@ -103,7 +103,8 @@ def get_product_info(item):
     brand = item_text[1:separator].strip()
 
     # 상품 이미지
-    img = 'https:' + item.find('img')['src']
+    small_img_url = 'https:' + item.find('img')['src']
+    img_url = "big".join(img_small_img_urlurl.rsplit("62", 1))
 
     # 상품 정가
     td_price = item.find('td', {'class': 'td_price'}).find('div')
@@ -114,13 +115,13 @@ def get_product_info(item):
         original_price = int(td_price.text.strip().replace(',', ''))
 
     # 상품 현재 가격
-    price_record = get_price_record(item, int(original_price))
+    price_record = get_price_record(item, original_price)
 
     product_info = {
         "item_id": item_id,
         "name": name,
         "brand": brand,
-        "img_url": img,
+        "img_url": img_url,
         "original_price": original_price,
         "price_history": [price_record]
     }
