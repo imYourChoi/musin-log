@@ -30,17 +30,6 @@ def move_to_cart(browser):
     time.sleep(3)
 
 
-def collect_items(browser):
-    soup = BeautifulSoup(browser.page_source, 'html.parser')
-    items = soup.find_all('tr', 'cart_list_no')
-
-    if not items:
-        return
-    with open('items.txt', 'w') as f:
-        for item in items:
-            extract_item_info(item, f)
-
-
 def connect_db():
     client = MongoClient(os.getenv("mongodb_uri"))
     db = client['musinsa']
@@ -52,43 +41,82 @@ def connect_db():
     return db_items
 
 
-def extract_item_info(item, f):
-    # 상품 브랜드 및 가격
+def get_items(browser):
+    soup = BeautifulSoup(browser.page_source, 'html.parser')
+    items = soup.find_all('tr', 'cart_list_no')
+
+    return items
+
+
+def save_items(db_items, items):
+    for item in items:
+        item_info = item.find('p', {'class': 'list_info'}).find('a')
+        item_id = item_info['href'].split('/')[-2]
+
+        item_from_DB = db_items.find_one({"item_id": item_id})
+        if item_from_DB:
+            original_price = item_from_DB['original_price']
+            price_element = extract_price_element(item, original_price)
+            db_items.update_one({"item_id": item_id}, {
+                                "$push": {"price_history": price_element}})
+        else:
+            product_info = extract_product_info(item)
+            # print(type(product_info))
+            db_items.insert_one(product_info)
+
+
+def extract_price_element(item, original_price=1000000):
+    td_price = item.find('td', {'class': 'td_price'}).find('div')
+    current_price = int(list(td_price.children)[-1].strip().replace(',', ''))
+
+    price_element = {
+        "date": time.strftime('%Y-%m-%d', time.localtime(time.time())),
+        "current_price": current_price,
+        "discount_rate": int((original_price - current_price) / original_price * 100),
+        "discount_amount": original_price - current_price,
+        "discount": True if original_price == current_price else False
+    }
+
+    return price_element
+
+
+def extract_product_info(item):
+    # 상품 정보
     item_info = item.find('p', {'class': 'list_info'}).find('a')
+
+    # 상품 id
+    item_id = item_info['href'].split('/')[-2]
+
+    # 상품 이름 및 브랜드
     item_text = item_info.text.strip()
-    id = item_info['href'].split('/')[-2]
-    index = item_text.index(']')
-    name = item_text[index+1:].strip()
-    brand = item_text[1:index].strip()
+    separator = item_text.index(']')
+    name = item_text[separator+1:].strip()
+    brand = item_text[1:separator].strip()
 
     # 상품 이미지
     img = 'https:' + item.find('img')['src']
 
-    # 상품 가격
+    # 상품 정가
     td_price = item.find('td', {'class': 'td_price'}).find('div')
-    original_price = td_price.text.strip().replace(',', '')
-    discount_price = None
+    original_price = None
     if span := td_price.find('span', {'class': 'txt_origin_price'}):
-        original_price = span.text.strip().replace(',', '')
-        discount_price = list(td_price.children)[-1].strip().replace(',', '')
+        original_price = int(span.text.strip().replace(',', ''))
+    else:
+        original_price = int(td_price.text.strip().replace(',', ''))
 
-    price_date = {
-        "date": time.strftime('%Y-%m-%d', time.localtime(time.time())),
+    # 상품 현재 가격
+    price_element = extract_price_element(item, int(original_price))
+
+    product_info = {
+        "item_id": item_id,
+        "name": name,
+        "brand": brand,
+        "img_url": img,
         "original_price": original_price,
-        "discount_price": discount_price if discount_price else 'no_discount'
+        "price_history": [price_element]
     }
-    print()
 
-    # 상품 정보 출력
-    f.write(f"product_id: {id}\n")
-    f.write(f"name: {name}\n")
-    f.write(f"brand: {brand}\n")
-    f.write(f"img_url: {img}\n")
-    f.write(
-        f"date: {time.strftime('%Y-%m-%d', time.localtime(time.time()))}\n")
-    f.write(f"original_price: {original_price}\n")
-    f.write(
-        f"discount_price: {discount_price if discount_price else 'no_discount'}\n\n")
+    return product_info
 
 
 def crawling():
@@ -97,7 +125,12 @@ def crawling():
     login(browser)
     move_to_cart(browser)
     db_items = connect_db()
-    collect_items(browser)
+    items = get_items(browser)
+
+    if not items:
+        return
+
+    save_items(db_items, items)
 
     time.sleep(2)
 
