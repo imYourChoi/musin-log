@@ -20,14 +20,14 @@ def login(browser):
     login_button = browser.find_element(By.CLASS_NAME, 'login-button__item')
 
     login_button.submit()
-    time.sleep(3)
+    time.sleep(5)
 
 
 def move_to_cart(browser):
     cart_button = browser.find_element(By.PARTIAL_LINK_TEXT, '장바구니')
     cart_button.send_keys(Keys.ENTER)
 
-    time.sleep(3)
+    time.sleep(5)
 
 
 def connect_db():
@@ -52,12 +52,17 @@ def get_price_record(item, original_price):
     td_price = item.find('td', {'class': 'td_price'}).find('div')
     current_price = int(list(td_price.children)[-1].strip().replace(',', ''))
 
+    txt_option = item.find(
+        'p', {'class': 'txt_option'}).text.replace("\t", "").replace("\xa0", "").replace("\n", " ").strip().split("/")
+    print(txt_option)
+
     price_record = {
         "date": time.strftime('%Y-%m-%d', time.localtime(time.time())),
         "current_price": current_price,
         "discount_rate": int((original_price - current_price) / original_price * 100),
         "discount_amount": original_price - current_price,
-        "discount": True if original_price == current_price else False
+        "discount": True if original_price == current_price else False,
+        "available": True if txt_option[-1].strip() != "품절" else False,
     }
 
     return price_record
