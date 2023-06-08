@@ -15,8 +15,8 @@ login_url = 'https://www.musinsa.com/auth/login?referer=https%3A%2F%2Fwww.musins
 def login(browser):
     browser.get(login_url)
 
-    browser.find_element(By.NAME, 'id').send_keys(os.getenv("musinsa_id"))
-    browser.find_element(By.NAME, 'pw').send_keys(os.getenv("musinsa_pw"))
+    browser.find_element(By.NAME, 'id').send_keys(os.getenv("MUSINSA_ID"))
+    browser.find_element(By.NAME, 'pw').send_keys(os.getenv("MUSINSA_PW"))
     login_button = browser.find_element(By.CLASS_NAME, 'login-button__item')
 
     login_button.submit()
@@ -31,7 +31,7 @@ def move_to_cart(browser):
 
 
 def connect_db():
-    client = MongoClient(os.getenv("mongodb_uri"))
+    client = MongoClient(os.getenv("MONGO_URI"))
     db = client['musinsa']
 
     if not "products" in db.list_collection_names():
@@ -61,7 +61,7 @@ def get_price_record(item, original_price):
         "discount_rate": int((original_price - current_price) / original_price * 100),
         "discount_amount": original_price - current_price,
         "discount": True if original_price != current_price else False,
-        "available": True if txt_option[-1].strip() != "품절" else False,
+        "available": True if txt_option[-1] != "품절" else False,
     }
 
     return price_record
@@ -133,7 +133,7 @@ def save_products(db_products, products):
 
 
 def crawling():
-    browser = webdriver.Safari(executable_path=os.getenv("safaridriver_path"))
+    browser = webdriver.Safari(executable_path=os.getenv("SAFARI_DRIVER_PATH"))
 
     login(browser)
     move_to_cart(browser)
