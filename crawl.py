@@ -54,14 +54,13 @@ def get_price_record(item, original_price):
 
     txt_option = item.find(
         'p', {'class': 'txt_option'}).text.replace("\t", "").replace("\xa0", "").replace("\n", " ").strip().split("/")
-    print(txt_option)
 
     price_record = {
         "date": time.strftime('%Y-%m-%d', time.localtime(time.time())),
         "current_price": current_price,
         "discount_rate": int((original_price - current_price) / original_price * 100),
         "discount_amount": original_price - current_price,
-        "discount": True if original_price == current_price else False,
+        "discount": True if original_price != current_price else False,
         "available": True if txt_option[-1].strip() != "품절" else False,
     }
 
