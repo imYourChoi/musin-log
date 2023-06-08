@@ -48,32 +48,6 @@ def get_products(browser):
     return products
 
 
-def save_products(db_products, products):
-    for item in products:
-        item_info = item.find('p', {'class': 'list_info'}).find('a')
-        item_id = item_info['href'].split('/')[-2]
-
-        filter = {"item_id": item_id}
-        item_from_DB = db_products.find_one(filter)
-
-        if item_from_DB:
-            update_at = item_from_DB['price_history'][-1]['date']
-            current_date = time.strftime(
-                '%Y-%m-%d', time.localtime(time.time()))
-            if update_at == current_date:
-                return
-
-            original_price = item_from_DB['original_price']
-            price_record = get_price_record(item, original_price)
-
-            filter = {"item_id": item_id}
-            update = {"$push": {"price_history": price_record}}
-            db_products.update_one(filter, update)
-        else:
-            product_info = get_product_info(item)
-            db_products.insert_one(product_info)
-
-
 def get_price_record(item, original_price):
     td_price = item.find('td', {'class': 'td_price'}).find('div')
     current_price = int(list(td_price.children)[-1].strip().replace(',', ''))
@@ -104,7 +78,7 @@ def get_product_info(item):
 
     # 상품 이미지
     small_img_url = 'https:' + item.find('img')['src']
-    img_url = "big".join(img_small_img_urlurl.rsplit("62", 1))
+    img_url = "big".join(small_img_url.rsplit("62", 1))
 
     # 상품 정가
     td_price = item.find('td', {'class': 'td_price'}).find('div')
@@ -127,6 +101,31 @@ def get_product_info(item):
     }
 
     return product_info
+
+
+def save_products(db_products, products):
+    for item in products:
+        item_info = item.find('p', {'class': 'list_info'}).find('a')
+        item_id = item_info['href'].split('/')[-2]
+
+        filter = {"item_id": item_id}
+        item_from_DB = db_products.find_one(filter)
+
+        if item_from_DB:
+            update_at = item_from_DB['price_history'][-1]['date']
+            current_date = time.strftime(
+                '%Y-%m-%d', time.localtime(time.time()))
+            if update_at == current_date:
+                return
+
+            original_price = item_from_DB['original_price']
+            price_record = get_price_record(item, original_price)
+
+            update = {"$push": {"price_history": price_record}}
+            db_products.update_one(filter, update)
+        else:
+            product_info = get_product_info(item)
+            db_products.insert_one(product_info)
 
 
 def crawling():
