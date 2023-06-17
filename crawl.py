@@ -120,7 +120,7 @@ def save_products(db_products, products):
             current_date = time.strftime(
                 '%Y-%m-%d', time.localtime(time.time()))
             if update_at == current_date:
-                return
+                continue
 
             original_price = item_from_DB['original_price']
             price_record = get_price_record(item, original_price)

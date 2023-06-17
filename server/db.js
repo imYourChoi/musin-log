@@ -4,11 +4,11 @@ const { MONGO_URI: mongoUri } = require("./env");
 const db = mongoose.connection;
 
 db.on("open", () => {
-  console.log("데이터베이스에 연결되었습니다.\n");
+  console.log("데이터베이스에 연결되었습니다.");
 });
 
 db.on("disconnected", () => {
-  console.log("데이터베이스와의 연결이 끊어졌습니다.\n");
+  console.log("데이터베이스와의 연결이 끊어졌습니다.");
   setTimeout(() => {
     mongoose.connect(mongoUri, {
       useNewUrlParser: true,
@@ -18,7 +18,7 @@ db.on("disconnected", () => {
 });
 
 db.on("error", function (err) {
-  console.error("데이터베이스 연결 에러 : " + err + "\n");
+  console.error("데이터베이스 연결 에러 : " + err);
   mongoose.disconnect();
 });
 
