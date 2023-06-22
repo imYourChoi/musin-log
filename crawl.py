@@ -143,7 +143,14 @@ def crawling():
     if not products:
         return
 
-    save_products(db_products, products)
+    with open('log.txt', 'a') as f:
+        try:
+            save_products(db_products, products)
+            f.write(
+                f"SUCCESS : {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}\n")
+        except Exception as e:
+            f.write(
+                f"ERROR : {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))} - {str(e)}\n")
 
     time.sleep(2)
 
