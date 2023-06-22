@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 load_dotenv()
-login_url = 'https://www.musinsa.com/auth/login?referer=https%3A%2F%2Fwww.musinsa.com%2Fapp%2F'
+login_url = 'https://www.musinsa.com/auth/login?referer=https%3A%2F%2Fwww.musinsa.com%2Fapp%2Fcart'
 
 
 def login(browser):
@@ -23,11 +23,11 @@ def login(browser):
     time.sleep(5)
 
 
-def move_to_cart(browser):
-    cart_button = browser.find_element(By.PARTIAL_LINK_TEXT, '장바구니')
-    cart_button.send_keys(Keys.ENTER)
+# def move_to_cart(browser):
+#     cart_button = browser.find_element(By.PARTIAL_LINK_TEXT, '장바구니')
+#     cart_button.send_keys(Keys.ENTER)
 
-    time.sleep(5)
+#     time.sleep(5)
 
 
 def connect_db():
@@ -136,7 +136,7 @@ def crawling():
     browser = webdriver.Safari(executable_path=os.getenv("SAFARI_DRIVER_PATH"))
 
     login(browser)
-    move_to_cart(browser)
+    # move_to_cart(browser)
     db_products = connect_db()
     products = get_products(browser)
 
