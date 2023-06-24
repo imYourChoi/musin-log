@@ -159,11 +159,11 @@ def crawling():
 
 
 if __name__ == "__main__":
-    with open('log.txt', 'a') as f:
+    with open(os.getenv("LOG_FILE_PATH"), 'a') as f:
         try:
             crawling()
             f.write(
-                f"SUCCESS : {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}\n")
+                f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))} : SUCCESS\n")
         except Exception as e:
             f.write(
-                f"ERROR : {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))} - {str(e)}\n")
+                f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))} : ERROR : - {str(e)}\n")
