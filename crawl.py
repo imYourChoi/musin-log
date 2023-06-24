@@ -7,6 +7,8 @@ from pymongo import MongoClient
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 
 load_dotenv()
 login_url = 'https://www.musinsa.com/auth/login?referer=https%3A%2F%2Fwww.musinsa.com%2Fapp%2Fcart'
@@ -133,7 +135,16 @@ def save_products(db_products, products):
 
 
 def crawling():
-    browser = webdriver.Safari(executable_path=os.getenv("SAFARI_DRIVER_PATH"))
+    # Configure Chrome options for headless browsing
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")  # Enable headless mode
+    chrome_options.add_argument("--disable-gpu")  # Disable GPU usage
+
+    # Create a Service object with the path to chromedriver
+    service = Service(executable_path=os.getenv("CHROME_DRIVER_PATH"))
+
+    # Create a Chrome WebDriver instance with the Service object and Chrome options
+    browser = webdriver.Chrome(service=service, options=chrome_options)
 
     login(browser)
     # move_to_cart(browser)
@@ -143,17 +154,16 @@ def crawling():
     if not products:
         return
 
+    save_products(db_products, products)
+    time.sleep(2)
+
+
+if __name__ == "__main__":
     with open('log.txt', 'a') as f:
         try:
-            save_products(db_products, products)
+            crawling()
             f.write(
                 f"SUCCESS : {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}\n")
         except Exception as e:
             f.write(
                 f"ERROR : {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))} - {str(e)}\n")
-
-    time.sleep(2)
-
-
-if __name__ == "__main__":
-    crawling()
