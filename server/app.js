@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cors(corsOptions));
 
-app.use("/products", require("./routes/products"));
+app.use("/", require("./router"));
 
 app.listen(port, () => {
   console.log(`Express 서버가 ${port}번 포트에서 실행됩니다.`);
