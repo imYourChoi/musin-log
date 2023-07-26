@@ -50,11 +50,11 @@ def get_products(browser):
     return products
 
 
-def get_price_record(item, original_price):
-    td_price = item.find('td', {'class': 'td_price'}).find('div')
+def get_price_record(product, original_price):
+    td_price = product.find('td', {'class': 'td_price'}).find('div')
     current_price = int(list(td_price.children)[-1].strip().replace(',', ''))
 
-    txt_option = item.find(
+    txt_option = product.find(
         'p', {'class': 'txt_option'}).text.replace("\t", "").replace("\xa0", "").replace("\n", " ").strip().split("/")
 
     price_record = {
@@ -69,25 +69,25 @@ def get_price_record(item, original_price):
     return price_record
 
 
-def get_product_info(item):
+def get_product_info(product):
     # 상품 정보
-    item_info = item.find('p', {'class': 'list_info'}).find('a')
+    product_info = product.find('p', {'class': 'list_info'}).find('a')
 
     # 상품 id
-    item_id = item_info['href'].split('/')[-2]
+    product_id = product_info['href'].split('/')[-2]
 
     # 상품 이름 및 브랜드
-    item_text = item_info.text.strip()
-    separator = item_text.index(']')
-    name = item_text[separator+1:].strip()
-    brand = item_text[1:separator].strip()
+    product_text = product_info.text.strip()
+    separator = product_text.index(']')
+    name = product_text[separator+1:].strip()
+    brand = product_text[1:separator].strip()
 
     # 상품 이미지
-    small_img_url = 'https:' + item.find('img')['src']
+    small_img_url = 'https:' + product.find('img')['src']
     img_url = "big".join(small_img_url.rsplit("62", 1))
 
     # 상품 정가
-    td_price = item.find('td', {'class': 'td_price'}).find('div')
+    td_price = product.find('td', {'class': 'td_price'}).find('div')
     original_price = None
     if span := td_price.find('span', {'class': 'txt_origin_price'}):
         original_price = int(span.text.strip().replace(',', ''))
@@ -95,10 +95,10 @@ def get_product_info(item):
         original_price = int(td_price.text.strip().replace(',', ''))
 
     # 상품 현재 가격
-    price_record = get_price_record(item, original_price)
+    price_record = get_price_record(product, original_price)
 
     product_info = {
-        "item_id": item_id,
+        "product_id": product_id,
         "name": name,
         "brand": brand,
         "img_url": img_url,
@@ -110,27 +110,27 @@ def get_product_info(item):
 
 
 def save_products(db_products, products):
-    for item in products:
-        item_info = item.find('p', {'class': 'list_info'}).find('a')
-        item_id = item_info['href'].split('/')[-2]
+    for product in products:
+        product_info = product.find('p', {'class': 'list_info'}).find('a')
+        product_id = product_info['href'].split('/')[-2]
 
-        filter = {"item_id": item_id}
-        item_from_DB = db_products.find_one(filter)
+        filter = {"product_id": product_id}
+        product_from_DB = db_products.find_one(filter)
 
-        if item_from_DB:
-            update_at = item_from_DB['price_history'][-1]['date']
+        if product_from_DB:
+            update_at = product_from_DB['price_history'][-1]['date']
             current_date = time.strftime(
                 '%Y-%m-%d', time.localtime(time.time()))
             if update_at == current_date:
                 continue
 
-            original_price = item_from_DB['original_price']
-            price_record = get_price_record(item, original_price)
+            original_price = product_from_DB['original_price']
+            price_record = get_price_record(product, original_price)
 
             update = {"$push": {"price_history": price_record}}
             db_products.update_one(filter, update)
         else:
-            product_info = get_product_info(item)
+            product_info = get_product_info(product)
             db_products.insert_one(product_info)
 
 
