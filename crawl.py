@@ -134,6 +134,10 @@ def save_products(db_products, products):
             db_products.insert_one(product_info)
 
 
+def rename_field(db_products):
+    db_products.update_many({}, {"$rename": {"item_id": "product_id"}})
+
+
 def crawling():
     # Configure Chrome options for headless browsing
     chrome_options = Options()
