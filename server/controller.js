@@ -23,7 +23,22 @@ const oneProductHandler = async (req, res) => {
   }
 };
 
+const searchProductsHandler = async (req, res) => {
+  try {
+    const { keyword } = req.query;
+    const products = await productModel.find({
+      name: { $regex: keyword, $options: "i" },
+    });
+    res.status(200).json({ products });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Products/searchProducts : Internal Server Error" });
+  }
+};
+
 module.exports = {
   allProductsHandler,
   oneProductHandler,
+  searchProductsHandler,
 };

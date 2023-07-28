@@ -7,4 +7,6 @@ router.get("/all", productHandlers.allProductsHandler);
 
 router.get("/one", productHandlers.oneProductHandler);
 
+router.get("/search", productHandlers.searchProductsHandler);
+
 module.exports = router;
