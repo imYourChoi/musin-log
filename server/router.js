@@ -3,7 +3,9 @@ const router = express.Router();
 
 const productHandlers = require("./controller");
 
-router.get("/all", productHandlers.allProductsHandler);
+router.get("/all", productHandlers.allProductHandler);
+
+router.get("/all-detail", productHandlers.allProductDetailHandler);
 
 router.get("/one", productHandlers.oneProductHandler);
 
