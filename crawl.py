@@ -143,12 +143,15 @@ def crawling():
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # Enable headless mode
     chrome_options.add_argument("--disable-gpu")  # Disable GPU usage
+    chrome_options.set_capability(
+        "unhandledPromptBehavior", "dismiss")  # Disable alert
 
     # Create a Service object with the path to chromedriver
     service = Service(executable_path=os.getenv("CHROME_DRIVER_PATH"))
 
     # Create a Chrome WebDriver instance with the Service object and Chrome options
-    browser = webdriver.Chrome(service=service, options=chrome_options)
+    browser = webdriver.Chrome(
+        service=service, options=chrome_options)
 
     login(browser)
     # move_to_cart(browser)
