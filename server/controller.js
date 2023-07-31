@@ -27,6 +27,7 @@ const allProductHandler = async (req, res) => {
       .sort(getSortOption(sort));
     res.status(200).json({ products });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       error: "Internal Server Error : allProducts",
     });
@@ -41,6 +42,7 @@ const allProductDetailHandler = async (req, res) => {
       .sort(getSortOption(sort));
     res.status(200).json({ products });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       error: "Internal Server Error : allProductsDetail",
     });
@@ -56,21 +58,27 @@ const oneProductHandler = async (req, res) => {
     );
     res.status(200).json({ product });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       error: "Internal Server Error : oneProduct",
     });
   }
 };
 
+function escapeRegExp(keyword) {
+  return keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 const searchProductsHandler = async (req, res) => {
   try {
     const { keyword, sort } = req.query;
+    const escapedKeyword = escapeRegExp(keyword);
     const products = await productModel
       .find(
         {
           $or: [
-            { name: { $regex: keyword, $options: "i" } },
-            { brand: { $regex: keyword, $options: "i" } },
+            { name: { $regex: escapedKeyword, $options: "i" } },
+            { brand: { $regex: escapedKeyword, $options: "i" } },
           ],
         },
         { price_history: 0, _id: 0 }
@@ -78,6 +86,7 @@ const searchProductsHandler = async (req, res) => {
       .sort(getSortOption(sort));
     res.status(200).json({ products });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       error: "Internal Server Error : searchProducts",
     });
