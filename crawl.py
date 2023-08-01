@@ -138,6 +138,11 @@ def rename_field(db_products):
     db_products.update_many({}, {"$rename": {"item_id": "product_id"}})
 
 
+def remove_fields(db_products):
+    db_products.update_many({}, {"$unset": {"price_history.$[].discount": "",
+                            "price_history.$[].discount_rate": "", "price_history.$[].discount_amount": ""}})
+
+
 def crawling():
     # Configure Chrome options for headless browsing
     chrome_options = Options()
@@ -156,13 +161,14 @@ def crawling():
     login(browser)
     # move_to_cart(browser)
     db_products = connect_db()
-    products = get_products(browser)
+    remove_field(db_products)
+    # products = get_products(browser)
 
-    if not products:
-        return
+    # if not products:
+    #     return
 
-    save_products(db_products, products)
-    time.sleep(2)
+    # save_products(db_products, products)
+    # time.sleep(2)
 
 
 if __name__ == "__main__":
