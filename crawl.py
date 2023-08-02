@@ -103,6 +103,7 @@ def get_product_info(product):
         "brand": brand,
         "img_url": img_url,
         "original_price": original_price,
+        'updated_at': time.strftime('%Y-%m-%d', time.localtime(time.time())),
         "price_history": [price_record]
     }
 
@@ -118,16 +119,17 @@ def save_products(db_products, products):
         product_from_DB = db_products.find_one(filter)
 
         if product_from_DB:
-            update_at = product_from_DB['price_history'][-1]['date']
+            updated_at = product_from_DB['updated_at']
             current_date = time.strftime(
                 '%Y-%m-%d', time.localtime(time.time()))
-            if update_at == current_date:
+            if updated_at == current_date:
                 continue
 
             original_price = product_from_DB['original_price']
             price_record = get_price_record(product, original_price)
 
-            update = {"$push": {"price_history": price_record}}
+            update = {"$push": {"price_history": price_record}, "$set": {
+                "updated_at": time.strftime('%Y-%m-%d', time.localtime(time.time()))}}
             db_products.update_one(filter, update)
         else:
             product_info = get_product_info(product)

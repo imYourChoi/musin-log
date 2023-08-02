@@ -28,6 +28,7 @@ const allProductDetailHandler = async (req, res) => {
           img_url: 1,
           original_price: 1,
           product_id: 1,
+          updated_at: 1,
           price_history: {
             $map: {
               input: "$price_history",

@@ -7,6 +7,7 @@ const ProductSchema = new Schema({
   brand: String,
   img_url: String,
   original_price: Number,
+  updated_at: String,
   price_history: [
     {
       date: String,
