@@ -10,6 +10,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
+from db_handle import *
+
 load_dotenv()
 login_url = 'https://www.musinsa.com/auth/login?referer=https%3A%2F%2Fwww.musinsa.com%2Fapp%2Fcart'
 
@@ -134,15 +136,6 @@ def save_products(db_products, products):
         else:
             product_info = get_product_info(product)
             db_products.insert_one(product_info)
-
-
-def rename_field(db_products):
-    db_products.update_many({}, {"$rename": {"item_id": "product_id"}})
-
-
-def remove_fields(db_products):
-    db_products.update_many({}, {"$unset": {"price_history.$[].discount": "",
-                            "price_history.$[].discount_rate": "", "price_history.$[].discount_amount": ""}})
 
 
 def crawling():
