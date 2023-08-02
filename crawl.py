@@ -161,14 +161,13 @@ def crawling():
     login(browser)
     # move_to_cart(browser)
     db_products = connect_db()
-    remove_field(db_products)
-    # products = get_products(browser)
+    products = get_products(browser)
 
-    # if not products:
-    #     return
+    if not products:
+        return
 
-    # save_products(db_products, products)
-    # time.sleep(2)
+    save_products(db_products, products)
+    time.sleep(2)
 
 
 if __name__ == "__main__":
