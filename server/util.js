@@ -13,7 +13,7 @@ const getSortOption = (sort) => {
     case "brand_desc":
       return { brand: -1 };
     default:
-      return { _id: 1 };
+      return { updated_at: -1 };
   }
 };
 

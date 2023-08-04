@@ -12,9 +12,6 @@ const ProductSchema = new Schema({
     {
       date: String,
       current_price: Number,
-      discount_rate: Number,
-      discount_amount: Number,
-      discount: Boolean,
       available: Boolean,
     },
   ],

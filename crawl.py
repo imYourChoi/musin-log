@@ -83,6 +83,7 @@ def get_product_info(product):
 
     # 상품 이미지
     small_img_url = 'https:' + product.find('img')['src']
+    # 사이즈 옵션은 3가지가 있음 [62, 500, big]
     img_url = "big".join(small_img_url.rsplit("62", 1))
 
     # 상품 정가

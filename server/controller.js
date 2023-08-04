@@ -19,31 +19,10 @@ const allProductHandler = async (req, res) => {
 const allProductDetailHandler = async (req, res) => {
   try {
     const { sort } = req.query;
-    const products = await productModel.aggregate([
-      {
-        $project: {
-          _id: 0,
-          name: 1,
-          brand: 1,
-          img_url: 1,
-          original_price: 1,
-          product_id: 1,
-          updated_at: 1,
-          price_history: {
-            $map: {
-              input: "$price_history",
-              as: "priceItem",
-              in: {
-                date: "$$priceItem.date",
-                current_price: "$$priceItem.current_price",
-                available: "$$priceItem.available",
-              },
-            },
-          },
-        },
-      },
-      { $sort: getSortOption(sort) },
-    ]);
+    const products = await productModel
+      .find({}, { _id: 0, "price_history.[]._id": 0 })
+      .sort(getSortOption(sort));
+    console.log(products.slice(0, 3));
     res.status(200).json({ products });
   } catch (error) {
     console.log(error);
