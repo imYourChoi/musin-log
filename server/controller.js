@@ -5,7 +5,7 @@ const allProductHandler = async (req, res) => {
   try {
     const { sort } = req.query;
     const products = await productModel
-      .find({}, { price_history: 0, _id: 0 })
+      .find({}, { price_history: 0 })
       .sort(getSortOption(sort));
     res.status(200).json({ products });
   } catch (error) {
@@ -19,9 +19,7 @@ const allProductHandler = async (req, res) => {
 const allProductDetailHandler = async (req, res) => {
   try {
     const { sort } = req.query;
-    const products = await productModel
-      .find({}, { _id: 0, "price_history.[]._id": 0 })
-      .sort(getSortOption(sort));
+    const products = await productModel.find({}).sort(getSortOption(sort));
     console.log(products.slice(0, 3));
     res.status(200).json({ products });
   } catch (error) {
@@ -35,10 +33,7 @@ const allProductDetailHandler = async (req, res) => {
 const oneProductHandler = async (req, res) => {
   try {
     const { product_id } = req.query;
-    const product = await productModel.findOne(
-      { product_id: product_id },
-      { _id: 0 }
-    );
+    const product = await productModel.findOne({ product_id: product_id });
     res.status(200).json({ product });
   } catch (error) {
     console.log(error);
@@ -60,7 +55,7 @@ const searchProductsHandler = async (req, res) => {
             { brand: { $regex: escapedKeyword, $options: "i" } },
           ],
         },
-        { price_history: 0, _id: 0 }
+        { price_history: 0 }
       )
       .sort(getSortOption(sort));
     res.status(200).json({ products });
