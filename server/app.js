@@ -6,10 +6,7 @@ const app = express();
 
 require("./db");
 
-const corsOptions = {
-  origin: [frontUrl],
-  credentials: true,
-};
+const corsOptions = { origin: [frontUrl], credentials: true };
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());

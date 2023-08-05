@@ -1,3 +1,8 @@
+const errorHandler = (res, error, type) => {
+  console.log(error);
+  res.status(500).json({ error: `Internal Server Error : ${type}` });
+};
+
 const getSortOption = (sort) => {
   switch (sort) {
     case "price_asc":
@@ -21,4 +26,4 @@ const escapeRegExp = (keyword) => {
   return keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 };
 
-module.exports = { getSortOption, escapeRegExp };
+module.exports = { errorHandler, getSortOption, escapeRegExp };

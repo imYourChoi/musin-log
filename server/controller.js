@@ -1,5 +1,5 @@
 const { productModel } = require("./model");
-const { getSortOption, escapeRegExp } = require("./util");
+const { errorHandler, getSortOption, escapeRegExp } = require("./util");
 
 const allProductHandler = async (req, res) => {
   try {
@@ -9,10 +9,7 @@ const allProductHandler = async (req, res) => {
       .sort(getSortOption(sort));
     res.status(200).json({ products });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      error: "Internal Server Error : allProducts",
-    });
+    errorHandler(res, error, "allProducts");
   }
 };
 
@@ -23,10 +20,7 @@ const allProductDetailHandler = async (req, res) => {
     console.log(products.slice(0, 3));
     res.status(200).json({ products });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      error: "Internal Server Error : allProductsDetail",
-    });
+    errorHandler(res, error, "allProductsDetail");
   }
 };
 
@@ -36,10 +30,7 @@ const oneProductHandler = async (req, res) => {
     const product = await productModel.findOne({ product_id: product_id });
     res.status(200).json({ product });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      error: "Internal Server Error : oneProduct",
-    });
+    errorHandler(res, error, "oneProduct");
   }
 };
 
@@ -60,10 +51,7 @@ const searchProductsHandler = async (req, res) => {
       .sort(getSortOption(sort));
     res.status(200).json({ products });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      error: "Internal Server Error : searchProducts",
-    });
+    errorHandler(res, error, "searchProducts");
   }
 };
 
