@@ -145,11 +145,10 @@ def crawling():
         "unhandledPromptBehavior", "dismiss")  # Disable alert
 
     # Create a Service object with the path to chromedriver
-    service = Service(executable_path=os.getenv("CHROME_DRIVER_PATH"))
+    service = Service()
 
     # Create a Chrome WebDriver instance with the Service object and Chrome options
-    browser = webdriver.Chrome(
-        service=service, options=chrome_options)
+    browser = webdriver.Chrome(service=service, options=chrome_options)
 
     login(browser)
     # move_to_cart(browser)
