@@ -144,7 +144,7 @@ def crawling():
     chrome_options.set_capability(
         "unhandledPromptBehavior", "dismiss")  # Disable alert
 
-    # Create a Service object with the path to chromedriver
+    # Create a Service object for the ChromeDriver
     service = Service()
 
     # Create a Chrome WebDriver instance with the Service object and Chrome options
