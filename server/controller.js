@@ -17,7 +17,6 @@ const allProductDetailHandler = async (req, res) => {
   try {
     const { sort } = req.query;
     const products = await productModel.find({}).sort(getSortOption(sort));
-    console.log(products.slice(0, 3));
     res.status(200).json({ products });
   } catch (error) {
     errorHandler(res, error, "allProductsDetail");
