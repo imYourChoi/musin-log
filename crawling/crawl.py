@@ -131,6 +131,13 @@ def save_products(db_products, products):
             update = {"$push": {"price_history": price_record}, "$set": {
                 "updated_at": time.strftime('%Y-%m-%d', time.localtime(time.time()))}}
             db_products.update_one(filter, update)
+
+            lowest_price_from_DB = product_from_DB['lowest_price']
+            if lowest_price_from_DB > price_record['current_price']:
+                update = {
+                    "$set": {"lowest_price": price_record['current_price']}}
+                db_products.update_one(filter, update)
+
         else:
             product_info = get_product_info(product)
             db_products.insert_one(product_info)
