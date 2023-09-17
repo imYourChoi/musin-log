@@ -52,7 +52,7 @@ def get_products(browser):
     return products
 
 
-def get_price_record(product, original_price):
+def get_price_record(product):
     td_price = product.find('td', {'class': 'td_price'}).find('div')
     current_price = int(list(td_price.children)[-1].strip().replace(',', ''))
 
@@ -103,11 +103,21 @@ def get_product_info(product):
         "brand": brand,
         "img_url": img_url,
         "original_price": original_price,
-        'updated_at': time.strftime('%Y-%m-%d', time.localtime(time.time())),
+        "updated_at": time.strftime('%Y-%m-%d', time.localtime(time.time())),
+        "lowest_price": price_record['current_price'],
         "price_history": [price_record]
     }
 
     return product_info
+
+
+def check_if_updated(product_from_DB):
+    updated_at = product_from_DB['updated_at']
+    current_date = time.strftime(
+        '%Y-%m-%d', time.localtime(time.time()))
+    if updated_at == current_date:
+        return True
+    return False
 
 
 def save_products(db_products, products):
@@ -119,14 +129,10 @@ def save_products(db_products, products):
         product_from_DB = db_products.find_one(filter)
 
         if product_from_DB:
-            updated_at = product_from_DB['updated_at']
-            current_date = time.strftime(
-                '%Y-%m-%d', time.localtime(time.time()))
-            if updated_at == current_date:
+            if check_if_updated(product_from_DB):
                 continue
 
-            original_price = product_from_DB['original_price']
-            price_record = get_price_record(product, original_price)
+            price_record = get_price_record(product)
 
             update = {"$push": {"price_history": price_record}, "$set": {
                 "updated_at": time.strftime('%Y-%m-%d', time.localtime(time.time()))}}
