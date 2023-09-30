@@ -95,7 +95,7 @@ def get_product_info(product):
         original_price = int(td_price.text.strip().replace(',', ''))
 
     # 상품 현재 가격
-    price_record = get_price_record(product, original_price)
+    price_record = get_price_record(product)
 
     product_info = {
         "product_id": product_id,
